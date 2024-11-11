@@ -2,12 +2,15 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <Serial.h>
 
 static volatile uint8_t toggle = 0;
 static uint8_t coldstart = 1;
 
 // Počítadlo pro zpomalení blikání LED
 static uint16_t count = 0;
+
+static Serial serial(115200);
 
 ISR(TIMER0_COMPA_vect)
 {
@@ -53,6 +56,8 @@ void blink()
         if (count >= 200)
         {
             PORTB ^= (1 << PORTB5); // Přepnutí stavu LED
+            char data = 'b';
+            serial.send(data);
             count = 0;
         }
     }
