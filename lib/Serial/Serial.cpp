@@ -11,29 +11,50 @@ void USART_Init(unsigned int ubrr)
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 }
 
-Serial::Serial(unsigned int baudrate)
+inline uint32_t Serial::calculateBaud(uint32_t baudrate)
+{
+    return FOSC / 16 / baudrate - 1;
+}
+
+uint16_t Serial::countDigits(uint64_t num)
+{
+    if (num/10 == 0)
+    {
+        return 1;
+    }
+    return 1 + countDigits(num/10);
+}
+
+Serial::Serial(uint32_t baudrate)
 {
     // Set baud rate
-    UBRR0H = (unsigned char)((FOSC / 16 / 115200 - 1) >> 8);
-    UBRR0L = (unsigned char)(FOSC / 16 / 115200 - 1);
+    UBRR0H = (unsigned char)(calculateBaud(baudrate) >> 8);
+    UBRR0L = (unsigned char)calculateBaud(baudrate);
     // 8 bit, 1 stop bit, no parity
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
     // Enable receiver and transmitter
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 }
 
-void Serial::send(char &data)
+void Serial::sendChar(char data)
 {
     while (!(UCSR0A & (1 << UDRE0)))
         ;
     UDR0 = data;
+}
 
-    while (!(UCSR0A & (1 << UDRE0)))
-        ;
-    UDR0 = '\r'; // Odeslání návratu vozíku
+void Serial::sendString(char *data)
+{
+    while (*data != '\0')
+    {
+        sendChar(*data);
+        ++data;
+    }
+}
 
-    while (!(UCSR0A & (1 << UDRE0)))
-        ;
-    UDR0 = '\n'; // Odeslání nového řádku
-    return;
+void Serial::sendNum(uint64_t data)
+{
+    char buffer[countDigits(data) + 1]; //+1 for '\0'
+    itoa(data, buffer, 10);
+    sendString(buffer);
 }

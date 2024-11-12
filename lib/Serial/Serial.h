@@ -1,12 +1,17 @@
 #pragma once
 
 #include <avr/interrupt.h>
+#include <stdlib.h>
 
 #define FOSC 16000000UL // Clock Speed
 
 class Serial
 {
+    inline uint32_t calculateBaud(uint32_t baudrate);
+    uint16_t countDigits(uint64_t num);
 public:
-    Serial(unsigned int baudrate);
-    void send(char& data);
+    Serial(uint32_t baudrate);
+    void sendChar(char data);
+    void sendString(char* data);
+    void sendNum(uint64_t data);
 };
