@@ -9,9 +9,17 @@ class Serial
 {
     inline uint32_t calculateBaud(uint32_t baudrate);
     uint16_t countDigits(uint64_t num);
+
 public:
+    static volatile char rec_char;
+    static volatile char rec;
+
     Serial(uint32_t baudrate);
     void sendChar(char data);
-    void sendString(char* data);
+    void sendString(char *data);
     void sendNum(uint64_t data);
+    char readChar();
+    char available();
 };
+
+ISR(USART_RX_vect);
