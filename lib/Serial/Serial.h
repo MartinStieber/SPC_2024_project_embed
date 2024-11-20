@@ -22,5 +22,4 @@ public:
     char available();
 };
 
-
 ISR(USART_RX_vect);

@@ -3,7 +3,6 @@
 #include <util/delay.h>
 #include "Serial.h"
 
-
 #define BIAS 10
 
 volatile uint16_t adc_val = 0;

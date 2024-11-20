@@ -16,7 +16,6 @@ ISR(TIMER0_COMPA_vect)
     toggle = 1;
 }
 
-
 void timer0_init()
 {
     // Nastavení CTC režimu (WGM02 = 0, WGM01 = 1, WGM00 = 0)
