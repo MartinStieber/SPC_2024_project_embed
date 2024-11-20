@@ -7,11 +7,11 @@ inline uint32_t Serial::calculateBaud(uint32_t baudrate)
 
 uint16_t Serial::countDigits(uint64_t num)
 {
-    if (num/10 == 0)
+    if (num / 10 == 0)
     {
         return 1;
     }
-    return 1 + countDigits(num/10);
+    return 1 + countDigits(num / 10);
 }
 
 Serial::Serial(uint32_t baudrate)
@@ -23,9 +23,10 @@ Serial::Serial(uint32_t baudrate)
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
     // Enable receiver and transmitter
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
-    //Interrupt
+    // Interrupt
     UCSR0B |= (1 << RXCIE0);
     sei();
+    //queue_init(&ser_buf);
 }
 
 void Serial::sendChar(char data)
@@ -65,7 +66,9 @@ char Serial::available()
 volatile char Serial::rec_char = 0;
 volatile char Serial::rec = 0;
 
-ISR(USART_RX_vect){
+ISR(USART_RX_vect)
+{
     Serial::rec_char = UDR0;
+    //queue_push(&Serial::ser_buf, Serial::rec_char);
     Serial::rec = 1;
 }

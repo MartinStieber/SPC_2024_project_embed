@@ -2,8 +2,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "Serial.h"
+#include "TM1637.h"
 
-#define BIAS 10
+#define BIAS 7
 
 volatile uint16_t adc_val = 0;
 volatile char new_adc_val = 0;
@@ -51,6 +52,8 @@ ISR(ADC_vect)
 
 int main(void)
 {
+    TM1637 display;
+    display.printInit();
     cli();
     // DDRB = (1 << PB4);
     // PORTB |= (1 << PB4);
@@ -72,7 +75,7 @@ int main(void)
     } while (welcome == 0);
 
     // LED indicates success connection
-    PORTB |= (1 << PB5);
+   // PORTB |= (1 << PB5);
 
     ADC_Init();
     Timer0_Init();
@@ -93,20 +96,56 @@ int main(void)
             }
         }
     } while (welcome == 1);
+    char display_change = 0;
+    uint8_t end_byte_pos = 0;
+    char buffer[4] = {'\0', '\0', '\0', '\0'};
 
     // Main loop
 
     while (1)
     {
+        if(display_change){
+            display.printNumChar(buffer, end_byte_pos);
+            for(int i = end_byte_pos; i >= 0; --i){
+                buffer[i] = '\0';
+                end_byte_pos = 0;
+                display_change = 0;
+            }
+        }
         if (new_adc_val)
         {
             new_adc_val = 0;
-            //uint32_t volume = calculate_percent(adc_val);
+            // uint32_t volume = calculate_percent(adc_val);
             if (check_range_val(adc_val) && (abs(adc_val - last_val) > BIAS))
             {
                 serial.sendNum(adc_val);
                 serial.sendChar('\n');
+
                 last_val = adc_val;
+            }
+        }
+        if (serial.available())
+        {
+            end_byte_pos = 0;
+            for (int i = 0; i < 4; ++i)
+            {
+                buffer[i] = '\0';
+            }
+            display_change = 1;
+            while (buffer[end_byte_pos] != '\n')
+            {
+                if (serial.available())
+                {
+                    PORTB |= (1 << PB5);
+                    buffer[end_byte_pos] = serial.readChar();
+                    end_byte_pos++;
+                }
+                if (end_byte_pos == 4)
+                {
+                    PORTB |= (1 << PB5);
+                    display_change = 0;
+                    break;
+                }
             }
         }
     }
