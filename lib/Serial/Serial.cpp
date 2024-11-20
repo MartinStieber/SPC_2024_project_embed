@@ -1,5 +1,6 @@
 #include "Serial.h"
 
+
 inline uint32_t Serial::calculateBaud(uint32_t baudrate)
 {
     return FOSC / 16 / baudrate - 1;
