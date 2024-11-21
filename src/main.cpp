@@ -4,7 +4,7 @@
 #include "Serial.h"
 #include "TM1637.h"
 
-#define BIAS 7
+#define BIAS 10
 
 volatile uint16_t adc_val = 0;
 volatile char new_adc_val = 0;
@@ -29,11 +29,6 @@ void Timer0_Init()
     TIMSK0 = 0;
 }
 
-// inline uint32_t calculate_percent(uint16_t adc_out)
-// {
-//     return (100 * adc_out) / 1024;
-// }
-
 inline char check_range_val(uint16_t val)
 {
     return (0 <= val && val <= 1023) ? 1 : 0;
@@ -41,12 +36,9 @@ inline char check_range_val(uint16_t val)
 
 ISR(ADC_vect)
 {
-    // PORTB |= (1 << PB4);
     adc_val = ADC;
     new_adc_val = 1;
-    // PORTB ^= (1 << PB4);
     TIFR0 |= (1 << OCF0A);
-    // PORTB &= ~(1 << PB4);
     return;
 }
 
@@ -55,12 +47,9 @@ int main(void)
     TM1637 display;
     display.printInit();
     cli();
-    // DDRB = (1 << PB4);
-    // PORTB |= (1 << PB4);
 
     DDRB = (1 << PB5);
     PORTB &= ~(1 << PB5);
-    // PORTB ^= ~(1 << PB4);
     sei();
 
     // Handshake
@@ -75,7 +64,7 @@ int main(void)
     } while (welcome == 0);
 
     // LED indicates success connection
-   // PORTB |= (1 << PB5);
+    // PORTB |= (1 << PB5);
 
     ADC_Init();
     Timer0_Init();
@@ -97,25 +86,26 @@ int main(void)
         }
     } while (welcome == 1);
     char display_change = 0;
-    uint8_t end_byte_pos = 0;
+    int end_byte_pos = -1;
     char buffer[4] = {'\0', '\0', '\0', '\0'};
 
     // Main loop
 
     while (1)
     {
-        if(display_change){
+        if (display_change)
+        {
             display.printNumChar(buffer, end_byte_pos);
-            for(int i = end_byte_pos; i >= 0; --i){
+            for (int i = end_byte_pos; i >= 0; --i)
+            {
                 buffer[i] = '\0';
-                end_byte_pos = 0;
-                display_change = 0;
             }
+            end_byte_pos = -1;
+            display_change = 0;
         }
         if (new_adc_val)
         {
             new_adc_val = 0;
-            // uint32_t volume = calculate_percent(adc_val);
             if (check_range_val(adc_val) && (abs(adc_val - last_val) > BIAS))
             {
                 serial.sendNum(adc_val);
@@ -126,26 +116,15 @@ int main(void)
         }
         if (serial.available())
         {
-            end_byte_pos = 0;
-            for (int i = 0; i < 4; ++i)
+            if (end_byte_pos == 3)
             {
-                buffer[i] = '\0';
+                end_byte_pos = -1;
             }
-            display_change = 1;
-            while (buffer[end_byte_pos] != '\n')
+            end_byte_pos++;
+            buffer[end_byte_pos] = serial.readChar();
+            if (buffer[end_byte_pos] == '\n')
             {
-                if (serial.available())
-                {
-                    PORTB |= (1 << PB5);
-                    buffer[end_byte_pos] = serial.readChar();
-                    end_byte_pos++;
-                }
-                if (end_byte_pos == 4)
-                {
-                    PORTB |= (1 << PB5);
-                    display_change = 0;
-                    break;
-                }
+                display_change = 1;
             }
         }
     }

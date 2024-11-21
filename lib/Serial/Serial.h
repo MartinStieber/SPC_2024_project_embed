@@ -2,7 +2,7 @@
 
 #include <avr/interrupt.h>
 #include <stdlib.h>
-//#include "TQueue.h"
+#include "TQueue.h"
 
 #define FOSC 16000000UL // Clock Speed
 
@@ -12,14 +12,13 @@ class Serial
     uint16_t countDigits(uint64_t num);
 
 public:
-    static volatile char rec_char;
     static volatile char rec;
 
-    //static struct TQueue ser_buf;
+    static struct TQueue ser_buf;
 
     Serial(uint32_t baudrate);
     void sendChar(char data);
-    void sendString(char *data);
+    void sendString(const char *data);
     void sendNum(uint64_t data);
     char readChar();
     char available();

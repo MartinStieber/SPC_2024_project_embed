@@ -26,7 +26,7 @@ Serial::Serial(uint32_t baudrate)
     // Interrupt
     UCSR0B |= (1 << RXCIE0);
     sei();
-    //queue_init(&ser_buf);
+    queue_init(&ser_buf);
 }
 
 void Serial::sendChar(char data)
@@ -36,39 +36,44 @@ void Serial::sendChar(char data)
     UDR0 = data;
 }
 
-void Serial::sendString(char *data)
-{
-    while (*data != '\0')
-    {
-        sendChar(*data);
-        ++data;
-    }
+void Serial::sendString(const char *data)
+{                 // Přidán const
+    while (*data) // Kratší zápis
+        sendChar(*data++);
 }
 
 void Serial::sendNum(uint64_t data)
 {
-    char buffer[countDigits(data) + 1]; //+1 for '\0'
-    itoa(data, buffer, 10);
+    // Optimalizace velikosti bufferu
+    char buffer[20];        // Max délka uint64_t je 20 číslic
+    utoa(data, buffer, 10); // Použití utoa místo itoa pro unsigned hodnoty
     sendString(buffer);
 }
 
 char Serial::readChar()
 {
-    return rec_char;
-    rec = 0;
+    uint8_t value;
+    queue_front(&ser_buf, &value);
+    queue_pop(&ser_buf);
+    return value;
 }
 
 char Serial::available()
 {
-    return Serial::rec;
+    return !queue_is_empty(&ser_buf);
 }
 
-volatile char Serial::rec_char = 0;
 volatile char Serial::rec = 0;
+
+struct TQueue Serial::ser_buf;
 
 ISR(USART_RX_vect)
 {
-    Serial::rec_char = UDR0;
-    //queue_push(&Serial::ser_buf, Serial::rec_char);
-    Serial::rec = 1;
+    uint8_t data = UDR0;
+    if (!queue_push(&Serial::ser_buf, data))
+    {
+        PORTB |= (1 << PB5);
+    }
+    else
+        Serial::rec = 1;
 }

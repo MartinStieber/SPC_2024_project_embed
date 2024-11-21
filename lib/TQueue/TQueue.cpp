@@ -6,6 +6,7 @@
  */
 
 #include "TQueue.h"
+#include <assert.h>
 
 void queue_init(struct TQueue *aQueue)
 {
@@ -28,12 +29,11 @@ char queue_is_empty(const struct TQueue *aQueue)
 	// jinak vrať 0.
 	if (aQueue)
 	{
-		if (!((aQueue->iPopPos < QUEUE_MAXCOUNT) && (aQueue->iPushPos < QUEUE_MAXCOUNT)))
+		assert((aQueue->iPopPos < QUEUE_MAXCOUNT) && (aQueue->iPushPos < QUEUE_MAXCOUNT));
+
+		if (aQueue->iPopPos == aQueue->iPushPos)
 		{
-			if (aQueue->iPopPos == aQueue->iPushPos)
-			{
-				return 1;
-			}
+			return 1;
 		}
 	}
 	return 0;
@@ -89,7 +89,7 @@ char queue_push(struct TQueue *aQueue, TQueueElement aValue)
 		aQueue->iValues[aQueue->iPushPos] = aValue;
 		aQueue->iPushPos = newpos;
 	}
-	return 0;
+	return 1;
 }
 
 char queue_pop(struct TQueue *aQueue)
