@@ -127,3 +127,9 @@ void TM1637::printInit()
     uint8_t segments[] = {0b00110000, 0b01010100, 0b00110000, 0b01111000};
     setSegments(segments, 4, 0);
 }
+
+void TM1637::printMute()
+{
+    uint8_t segments[] = {0b00110111, 0b00011100, 0b01111000, 0b01111001};
+    setSegments(segments, 4, 0);
+}
