@@ -5,8 +5,6 @@
 #include "Serial.h"
 #include "TM1637.h"
 
-#define BIAS 10
-
 #define INT_PIN PCINT21
 
 volatile char is_muted = 0;
@@ -16,9 +14,7 @@ volatile char mute_handled = 0;
 volatile uint16_t adc_val = 0;
 volatile char new_adc_val = 0;
 
-uint16_t last_val = 0;
-
-Serial serial(57600);
+Serial serial(57600, 21, 1);
 
 void ADC_Init()
 {
@@ -108,9 +104,7 @@ int main(void)
             new_adc_val = 0;
             if (check_range_val(adc_val))
             {
-                serial.sendNum(adc_val);
-                serial.sendChar('\n');
-                last_val = adc_val;
+                serial.sendMedianFilter(adc_val);
                 welcome = 0;
             }
         }
@@ -160,12 +154,8 @@ int main(void)
         if (new_adc_val && !is_muted)
         {
             new_adc_val = 0;
-            if (check_range_val(adc_val) && (abs(adc_val - last_val) > BIAS))
             {
-                serial.sendNum(adc_val);
-                serial.sendChar('\n');
-
-                last_val = adc_val;
+                serial.sendMedianFilter(adc_val);
             }
         }
         if (serial.available())
