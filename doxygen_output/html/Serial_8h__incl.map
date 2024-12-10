@@ -1,0 +1,12 @@
+<map id="lib/Serial/Serial.h" name="lib/Serial/Serial.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="91,5,223,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,120,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,33,91,72,88,68,141,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="122,152,193,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,31,160,138,155,138,155,31"/>
+<area shape="rect" id="Node000004" href="$TQueue_8h.html" title="Definice typu fronta (realizace pomocí kruhového pole)" alt="" coords="195,79,279,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="172,29,216,68,212,72,168,33"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="226,106,182,145,179,141,223,102"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="217,152,287,177"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="242,104,249,138,244,139,237,105"/>
+</map>

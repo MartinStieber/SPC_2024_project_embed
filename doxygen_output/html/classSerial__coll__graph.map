@@ -1,0 +1,5 @@
+<map id="Serial" name="Serial">
+<area shape="rect" id="Node000001" title="Serial communication class." alt="" coords="12,93,71,119"/>
+<area shape="rect" id="Node000002" href="$structTQueue.html" title="Definice typu Queue." alt="" coords="5,5,77,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="44,45,44,93,39,93,39,45"/>
+</map>
