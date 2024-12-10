@@ -1,21 +1,28 @@
 #include "TM1637.h"
 
+// Function to start communication with TM1637
 void TM1637::start()
 {
+    // Set DIO pin as output
     DDRD |= (1 << DIO);
     _delay_us(bit_delay);
 }
 
+// Function to stop communication with TM1637
 void TM1637::stop()
 {
+    // Set DIO pin as output
     DDRD |= (1 << DIO);
     _delay_us(bit_delay);
+    // Set CLK pin as input
     DDRD &= ~(1 << CLK);
     _delay_us(bit_delay);
+    // Set DIO pin as input
     DDRD &= ~(1 << DIO);
     _delay_us(bit_delay);
 }
 
+// Function to write a byte to TM1637
 void TM1637::writeByte(uint8_t b)
 {
     uint8_t data = b;
@@ -55,10 +62,12 @@ void TM1637::writeByte(uint8_t b)
         DDRD |= (1 << DIO);
 
     _delay_us(bit_delay);
+    // CLK high
     DDRD |= (1 << CLK);
     _delay_us(bit_delay);
 }
 
+// Function to set segments on the TM1637 display
 void TM1637::setSegments(const uint8_t *segments, uint8_t length, uint8_t pos)
 {
     // Write COMM1
@@ -82,12 +91,14 @@ void TM1637::setSegments(const uint8_t *segments, uint8_t length, uint8_t pos)
     stop();
 }
 
+// Function to clear the TM1637 display
 void TM1637::clear()
 {
     uint8_t data[] = {0, 0, 0, 0};
     setSegments(data, 4, 0);
 }
 
+// Function to count the number of digits in a number
 uint16_t TM1637::countDigits(uint64_t num)
 {
     if (num / 10 == 0)
@@ -97,6 +108,7 @@ uint16_t TM1637::countDigits(uint64_t num)
     return 1 + countDigits(num / 10);
 }
 
+// Function to display a number on the TM1637 display
 void TM1637::printNum(uint16_t num)
 {
     uint8_t digits = countDigits(num);
@@ -111,6 +123,7 @@ void TM1637::printNum(uint16_t num)
     setSegments(segments, 4, 0);
 }
 
+// Function to display a string of digits on the TM1637 display
 void TM1637::printNumChar(const char *str, uint8_t digits)
 {
     uint8_t segments[4] = {0, 0, 0, 0};
@@ -122,12 +135,14 @@ void TM1637::printNumChar(const char *str, uint8_t digits)
     setSegments(segments, 4, 0);
 }
 
+// Function to display an initialization pattern on the TM1637 display
 void TM1637::printInit()
 {
     uint8_t segments[] = {0b00110000, 0b01010100, 0b00110000, 0b01111000};
     setSegments(segments, 4, 0);
 }
 
+// Function to display a mute pattern on the TM1637 display
 void TM1637::printMute()
 {
     uint8_t segments[] = {0b00110111, 0b00011100, 0b01111000, 0b01111001};

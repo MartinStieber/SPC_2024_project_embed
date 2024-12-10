@@ -7,6 +7,7 @@
 
 #define INT_PIN PCINT21
 
+// Global variables for mute state and ADC value
 volatile char is_muted = 0;
 volatile char unmute_handled = 1;
 volatile char mute_handled = 0;
@@ -14,47 +15,68 @@ volatile char mute_handled = 0;
 volatile uint16_t adc_val = 0;
 volatile char new_adc_val = 0;
 
-Serial serial(57600, 21, 1);
+// Initialize Serial communication with baud rate 57600, median filter size 21, and sending bias 1
+Serial serial(57600, 21, 1, 1);
 
+// Function to initialize ADC
 void ADC_Init()
 {
-    ADMUX = (1 << REFS0);                                                             // AVCC reference, MUXx = 0 for ADC0 (A0)
-    ADCSRA = (1 << ADATE) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) | (1 << ADIE); // enable, free running, prescaler, interrupt
-    ADCSRB = (1 << ADTS1) | (1 << ADTS0);                                             // Timer/Counter0 Compare Match A
-    ADCSRA |= (1 << ADEN);                                                            // ADC start
+    // Set AVCC as reference, select ADC0 (A0)
+    ADMUX = (1 << REFS0);
+    // Enable ADC, set prescaler, enable auto trigger and interrupt
+    ADCSRA = (1 << ADATE) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) | (1 << ADIE);
+    // Set Timer/Counter0 Compare Match A as trigger source
+    ADCSRB = (1 << ADTS1) | (1 << ADTS0);
+    // Enable ADC
+    ADCSRA |= (1 << ADEN);
 }
 
+// Function to initialize Timer0
 void Timer0_Init()
 {
-    TCCR0A = (1 << WGM01);              // CTC
-    TCCR0B = (1 << CS02) | (1 << CS00); // Prescaler 1024
-    OCR0A = (unsigned char)156;         // For compare every ~10ms => 156
+    // Set Timer0 to CTC mode
+    TCCR0A = (1 << WGM01);
+    // Set prescaler to 1024
+    TCCR0B = (1 << CS02) | (1 << CS00);
+    // Set compare value for ~10ms interval
+    OCR0A = (unsigned char)156;
+    // Disable Timer0 interrupts
     TIMSK0 = 0;
 }
 
+// Inline function to check if ADC value is within range
 inline char check_range_val(uint16_t val)
 {
     return (0 <= val && val <= 1023) ? 1 : 0;
 }
 
+// Function to initialize mute functionality
 void MUTE_Init()
 {
-    cli();                                  // Disable global interrupts
-    EICRA |= ((1 << ISC01) | (1 << ISC00)); // Set INT0 to trigger on rising edge
-    EIMSK |= (1 << INT0);                   // Enable INT0
+    // Disable global interrupts
+    cli();
+    // Set INT0 to trigger on rising edge
+    EICRA |= ((1 << ISC01) | (1 << ISC00));
+    // Enable INT0
+    EIMSK |= (1 << INT0);
 }
 
+// ADC interrupt service routine
 ISR(ADC_vect)
 {
+    // Read ADC value and set flag for new value
     adc_val = ADC;
     new_adc_val = 1;
+    // Clear Timer0 compare match flag
     TIFR0 |= (1 << OCF0A);
 }
 
+// INT0 interrupt service routine
 ISR(INT0_vect)
 {
+    // Toggle PB5 and update mute state
     PORTB ^= (1 << PB5);
-    is_muted = !is_muted; // Jednodušší přepínání stavu
+    is_muted = !is_muted;
     if (is_muted)
     {
         mute_handled = 0;
@@ -67,22 +89,25 @@ ISR(INT0_vect)
 
 int main(void)
 {
+    // Initialize TM1637 display
     TM1637 display;
     display.printInit();
-    cli(); // Vypneme přerušení na začátku
+    // Disable global interrupts at the beginning
+    cli();
 
-    // Inicializace pinů
+    // Initialize pins
     DDRD &= ~(1 << PD7);
     DDRB = (1 << PB5);
     PORTB &= ~(1 << PB5);
 
-    // Inicializace všech periferií
+    // Initialize all peripherals
     ADC_Init();
     Timer0_Init();
 
-    sei(); // Až teď povolíme přerušení
+    // Enable global interrupts
+    sei();
 
-    // Handshake
+    // Handshake with serial communication
     char welcome = 0;
     do
     {
@@ -93,10 +118,10 @@ int main(void)
         }
     } while (welcome == 0);
 
-    // LED indicates success connection
+    // LED indicates successful connection
     // PORTB |= (1 << PB5);
 
-    // Wait for first ADC
+    // Wait for first ADC value
     do
     {
         if (new_adc_val)
@@ -154,9 +179,7 @@ int main(void)
         if (new_adc_val && !is_muted)
         {
             new_adc_val = 0;
-            {
-                serial.sendMedianFilter(adc_val);
-            }
+            serial.sendMedianFilter(adc_val);
         }
         if (serial.available())
         {
@@ -166,15 +189,12 @@ int main(void)
             }
             end_byte_pos++;
             buffer[end_byte_pos] = serial.readChar();
-            if (buffer[end_byte_pos] == 'r'){
+            if (buffer[end_byte_pos] == 'r')
+            {
                 // Reset the system by entering an infinite loop, allowing the watchdog timer to trigger a reset
-
                 display.printNum(69);
-                // Reset watchdog timer
                 wdt_reset();
-                // Enable watchdog timer with a timeout period
                 wdt_enable(WDTO_15MS);
-                // Wait for watchdog to reset the microcontroller
                 while (1) {}
             }
             if (buffer[end_byte_pos] == '\n')
