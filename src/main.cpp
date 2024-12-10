@@ -7,18 +7,29 @@
 
 #define INT_PIN PCINT21
 
-// Global variables for mute state and ADC value
-volatile char is_muted = 0;
-volatile char unmute_handled = 1;
-volatile char mute_handled = 0;
+/**
+ * @brief Global variables for mute state and ADC value
+ */
+volatile char is_muted = 0; ///< Mute state flag
+volatile char unmute_handled = 1; ///< Unmute handled flag
+volatile char mute_handled = 0; ///< Mute handled flag
 
-volatile uint16_t adc_val = 0;
-volatile char new_adc_val = 0;
+volatile uint16_t adc_val = 0; ///< ADC value
+volatile char new_adc_val = 0; ///< New ADC value flag
 
-// Initialize Serial communication with baud rate 57600, median filter size 21, and sending bias 1
+/**
+ * @brief Initialize Serial communication with baud rate 57600, median filter size 21, and sending bias 1
+ */
 Serial serial(57600, 21, 1, 1);
 
-// Function to initialize ADC
+/**
+ * @brief Function to initialize ADC
+ * 
+ * @details This function sets up the ADC with AVCC as the reference voltage,
+ * selects ADC0 (A0) as the input channel, enables the ADC, sets the prescaler,
+ * enables auto trigger and interrupt, and sets Timer/Counter0 Compare Match A
+ * as the trigger source.
+ */
 void ADC_Init()
 {
     // Set AVCC as reference, select ADC0 (A0)
@@ -31,7 +42,13 @@ void ADC_Init()
     ADCSRA |= (1 << ADEN);
 }
 
-// Function to initialize Timer0
+/**
+ * @brief Function to initialize Timer0
+ * 
+ * @details This function sets Timer0 to CTC mode, sets the prescaler to 1024,
+ * and sets the compare value for approximately 10ms interval. It also disables
+ * Timer0 interrupts.
+ */
 void Timer0_Init()
 {
     // Set Timer0 to CTC mode
@@ -44,13 +61,26 @@ void Timer0_Init()
     TIMSK0 = 0;
 }
 
-// Inline function to check if ADC value is within range
+/**
+ * @brief Inline function to check if ADC value is within range
+ * 
+ * @details This function checks if the given ADC value is within the range
+ * of 0 to 1023.
+ * 
+ * @param val ADC value to check
+ * @return char 1 if value is within range, 0 otherwise
+ */
 inline char check_range_val(uint16_t val)
 {
     return (0 <= val && val <= 1023) ? 1 : 0;
 }
 
-// Function to initialize mute functionality
+/**
+ * @brief Function to initialize mute functionality
+ * 
+ * @details This function disables global interrupts, sets INT0 to trigger
+ * on rising edge, and enables INT0.
+ */
 void MUTE_Init()
 {
     // Disable global interrupts
@@ -61,7 +91,12 @@ void MUTE_Init()
     EIMSK |= (1 << INT0);
 }
 
-// ADC interrupt service routine
+/**
+ * @brief ADC interrupt service routine
+ * 
+ * @details This ISR reads the ADC value, sets the flag for new value, and
+ * clears the Timer0 compare match flag.
+ */
 ISR(ADC_vect)
 {
     // Read ADC value and set flag for new value
@@ -71,7 +106,12 @@ ISR(ADC_vect)
     TIFR0 |= (1 << OCF0A);
 }
 
-// INT0 interrupt service routine
+/**
+ * @brief INT0 interrupt service routine
+ * 
+ * @details This ISR toggles PB5 and updates the mute state. It also sets
+ * the appropriate flags for mute and unmute handling.
+ */
 ISR(INT0_vect)
 {
     // Toggle PB5 and update mute state
@@ -87,6 +127,17 @@ ISR(INT0_vect)
     }
 }
 
+/**
+ * @brief Main function
+ * 
+ * @details This is the main function of the program. It initializes the
+ * TM1637 display, disables global interrupts, initializes pins and peripherals,
+ * enables global interrupts, performs a handshake with serial communication,
+ * and enters the main loop where it handles mute/unmute functionality, ADC
+ * value processing, and serial communication.
+ * 
+ * @return int 
+ */
 int main(void)
 {
     // Initialize TM1637 display
@@ -117,9 +168,6 @@ int main(void)
             welcome = 1;
         }
     } while (welcome == 0);
-
-    // LED indicates successful connection
-    // PORTB |= (1 << PB5);
 
     // Wait for first ADC value
     do

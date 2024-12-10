@@ -13,6 +13,9 @@
 
 #define NUM_OFFSET 1
 
+/**
+ * @brief TM1637 display driver class
+ */
 class TM1637
 {
     // Bit delay for communication
@@ -34,26 +37,98 @@ class TM1637
         0b01101111  // 9
     };
 
-    // Function to start communication with TM1637
+    /**
+     * @brief Function to start communication with TM1637
+     * 
+     * @details This function sets the DIO and CLK lines high, then sets the DIO line low
+     * to start communication with the TM1637 display.
+     */
     void start();
-    // Function to stop communication with TM1637
+
+    /**
+     * @brief Function to stop communication with TM1637
+     * 
+     * @details This function sets the CLK line low, then sets the DIO line low, and finally
+     * sets both the CLK and DIO lines high to stop communication with the TM1637 display.
+     */
     void stop();
-    // Function to write a byte to TM1637
+
+    /**
+     * @brief Function to write a byte to TM1637
+     * 
+     * @details This function writes a byte to the TM1637 display by sending each bit
+     * and toggling the CLK line. It also waits for an acknowledgment from the display.
+     * 
+     * @param b Byte to write
+     */
     void writeByte(uint8_t b);
-    // Function to set segments on the TM1637 display
+
+    /**
+     * @brief Function to set segments on the TM1637 display
+     * 
+     * @details This function sets the segments on the TM1637 display by sending the
+     * appropriate commands and data. It can set multiple segments starting from a
+     * specified position.
+     * 
+     * @param segments Array of segments to set
+     * @param length Length of the segments array
+     * @param pos Position to start setting segments
+     */
     void setSegments(const uint8_t *segments, uint8_t length, uint8_t pos);
-    // Function to count the number of digits in a number
+
+    /**
+     * @brief Function to count the number of digits in a number
+     * 
+     * @details This function counts the number of digits in a given number by
+     * recursively dividing the number by 10.
+     * 
+     * @param num Number to count digits of
+     * @return uint16_t Number of digits
+     */
     uint16_t countDigits(uint64_t num);
 
 public:
-    // Function to clear the TM1637 display
+    /**
+     * @brief Function to clear the TM1637 display
+     * 
+     * @details This function clears all segments on the TM1637 display.
+     */
     void clear();
-    // Function to display a number on the TM1637 display
+
+    /**
+     * @brief Function to print a number on the display
+     * 
+     * @details This function prints a given number on the TM1637 display by converting
+     * the number to its corresponding 7-segment display encoding and setting the segments.
+     * 
+     * @param num Number to print
+     */
     void printNum(uint16_t num);
-    // Function to display a string of digits on the TM1637 display
-    void printNumChar(const char *str, uint8_t digits);
-    // Function to display an initialization pattern on the TM1637 display
+
+    /**
+     * @brief Function to print a number with characters on the display
+     * 
+     * @details This function prints a given buffer of characters on the TM1637 display.
+     * It converts each character to its corresponding 7-segment display encoding and sets
+     * the segments.
+     * 
+     * @param buffer Buffer containing the characters to print
+     * @param length Length of the buffer
+     */
+    void printNumChar(const char *buffer, uint8_t length);
+
+    /**
+     * @brief Function to initialize the display
+     * 
+     * @details This function initializes the TM1637 display by clearing all segments.
+     */
     void printInit();
-    // Function to display a mute pattern on the TM1637 display
+
+    /**
+     * @brief Function to print "MUTE" on the display
+     * 
+     * @details This function prints the word "MUTE" on the TM1637 display by setting the
+     * appropriate segments for each character.
+     */
     void printMute();
 };
