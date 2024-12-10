@@ -8,7 +8,7 @@
 
 class Serial
 {
-    inline uint32_t calculateBaud(uint32_t baudrate);
+    inline uint16_t calculateBaud(uint32_t baudrate);
     uint16_t countDigits(uint64_t num);
     uint64_t* medianFilterQueue = nullptr;
     uint8_t _coldstart_median_count = 0;

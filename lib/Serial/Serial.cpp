@@ -1,6 +1,6 @@
 #include "Serial.h"
 
-inline uint32_t Serial::calculateBaud(uint32_t baudrate)
+inline uint16_t Serial::calculateBaud(uint32_t baudrate)
 {
     return FOSC / 16 / baudrate - 1;
 }
@@ -25,6 +25,9 @@ Serial::Serial(uint32_t baudrate, uint8_t median_filter_size, const uint8_t send
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
     // Interrupt
     UCSR0B |= (1 << RXCIE0);
+
+    // Double speed
+    UCSR0A |= (1 << U2X0);
 
     queue_init(&ser_buf);
 
