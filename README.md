@@ -68,6 +68,6 @@ This project uses the following libraries:
 
 ## License
 
-This project is licensed under the GNU General Public License (GPL) version 3.0. See the [LICENSE.txt](LICENSE.txt) file for details.
+This project is licensed under the GNU General Public License (GPL) version 3.0. See the [LICENSE](LICENSE) file for details.
 
 The TM1637 library included in this project is licensed under the GNU Lesser General Public License (LGPL) version 3.0. See the [LICENSE-LGPL-3.0.txt](LICENSE-LGPL-3.0.txt) file for details. The original library can be found at https://github.com/avishorp/TM1637.
