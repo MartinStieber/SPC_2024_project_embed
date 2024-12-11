@@ -61,12 +61,13 @@ This project uses the following libraries:
 - [TM1637](https://github.com/avishorp/TM1637) - A library for controlling the TM1637 7-segment display (licensed under LGPL-3.0).
   - Modifications made to the original TM1637 library:
     - Removed unnecessary methods for this project
-    - Converted the library to a class-based implementation
+    - Some methods were renamed and changed
+    - Removed examples
 - Custom `Serial` library for serial communication with median filtering.
 - Custom `TQueue` library for queue management.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License (GPL) version 3.0. See the [LICENSE.txt](LICENSE.txt) file for details.
 
-The TM1637 library included in this project is licensed under the GNU Lesser General Public License (LGPL) version 3.0. The original library can be found at https://github.com/avishorp/TM1637.
+The TM1637 library included in this project is licensed under the GNU Lesser General Public License (LGPL) version 3.0. See the [LICENSE-LGPL-3.0.txt](LICENSE-LGPL-3.0.txt) file for details. The original library can be found at https://github.com/avishorp/TM1637.

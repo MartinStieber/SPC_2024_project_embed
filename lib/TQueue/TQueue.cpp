@@ -1,4 +1,4 @@
-/** \file TQueue.c
+/** \file TQueue.cpp
  *  \brief Implementace API pro typ fronta (realizace pomocí kruhového pole)
  *  \author Petyovský
  *  \version 2022
