@@ -15,8 +15,8 @@ SPC_2024_project_embed
 
 ## Overview
 
-This project is part of a school project, including setting of volume of PC.
-Second part of this project can be found here: https://github.com/MartinStieber/SPC_2024_project
+This project is part of a school project, including the setting of the PC volume.
+Second part of this project can be found here: https://github.com/MartinStieber/SPC_2024_project.
 This project demonstrates the use of the TM1637 display, serial communication, and ADC functionality on an Arduino board. It includes features such as mute/unmute functionality, median filtering of ADC values, and more.
 
 ## Features
