@@ -17,7 +17,7 @@ SPC_2024_project_embed
 
 This project is part of a school project, including the setting of the PC volume.
 Second part of this project can be found here: https://github.com/MartinStieber/SPC_2024_project.
-This project demonstrates the use of the TM1637 display, serial communication, and ADC functionality on an Arduino board. It includes features such as mute/unmute functionality, median filtering of ADC values, and more.
+This project demonstrates the use of the TM1637 display, serial communication, and ADC functionality on an Arduino UNO R3 (with ATmega328p) board. It includes features such as mute/unmute functionality, median filtering of ADC values, and more.
 
 ## Features
 
@@ -52,7 +52,7 @@ This project demonstrates the use of the TM1637 display, serial communication, a
     ```sh
     pio run --target upload
     ```
-3. Continue with SPC_2024_project (https://github.com/MartinStieber/SPC_2024_project)
+3. Continue with SPC_2024_project (https://github.com/MartinStieber/SPC_2024_project).
 
 ## Libraries
 
